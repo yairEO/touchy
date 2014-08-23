@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<!-------------------------------------------/*
+ *  jQuery Touchy - test page
+ *
+ *  Copyright 2013, Yair Even Or
+ *  http://dropthebit.com
+ *
+ *  Licensed under the MIT license:
+ *  http://www.opensource.org/licenses/MIT
+ */------------------------------------------>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>touchy test page</title>
+	<meta name="viewport" content="width=device-width">
+	<style>
+		html, body{ height:100%; }
+		body{ text-align:center; margin:0; padding:10px; font-family:Arial; }
+		div{ height:80%; border:2px solid #CCC; background:#EEE; font-size:3em;  }
+		div::before{ height:100%; content:''; vertical-align:middle; display:inline-block; }
+		span{ vertical-align:middle; pointer-events:none; }
+	</style>
+	<!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</head>
+<body>
+	<h2>swipe / double tap / single tap</h2>
+	<div></div>
+	<script src='jquery.touch.js'></script>
+	<script>
+		$('div').on('swipe', function(e, Dx, Dy){
+			var side = (Dx < 0) ? '←' : (Dx > 0) ? '→' : (Dy > 0) ? '↑' : (Dy < 0) ? '↓' : '?'; 
+			$(this).html('<span>' + side + '</span>');
+		}).on('doubleTap', function(){
+			$(this).html('<span>doubleTap</span>');
+		}).on('tap', function(){
+			$(this).html('<span>Tap</span>');
+		})
+	</script>
+</body> 
+</html>

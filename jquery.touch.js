@@ -1,71 +1,90 @@
-/**
-* tap / double tap special event for jQuery
-*
-* @author Yair Even Or
-* @version 1.0.0 (2014)
-* MIT-style license.
+/*!
+    tap / double tap special event for jQuery
+    v 1.0.0
+    (c) 2014 Yair Even Or <http://dropthebit.com>
+    MIT-style license.
 */
 
 (function($){
 	"use strict";
 
 	var tapTimer,
-		moved = false,   // flag to know if the finger had moved while touched the device
-		wait = 250; // ms
+		moved     = false,   // flag to know if the finger had moved while touched the device
+		threshold = 250;     // ms
 
-	$.event.special.tap = {
-	    setup: function(data, namespaces) {
-	        $(this).bind('touchend.tap', $.event.special.tap.handler)
-	        	   .bind('touchmove.tap', function(){
-	        	   		moved = true;
-	        	   });
-	    },
-
-	    teardown: function(namespaces) {
-	        $(this).unbind('touchend.tap touchmove.tap');
-	    },
-
-	    handler: function(event){
-	    	if( moved ){
-	    		moved = false;
-	    		return false;
-	    	}
-
-	        var elem 	  = event.target,
-	            $elem 	  = $(elem),
-	            lastTouch = $elem.data('lastTouch') || 0,
-	            now 	  = new Date().getTime(),
-				delta 	  = now - lastTouch,
-				args      = [].slice.call( arguments, 1 ); // clone arguments array, remove original event from cloned array
-
-	        if( delta > 20 && delta < wait ){
-	        	clearTimeout(tapTimer);
-	            return $elem.data('lastTouch', 0).trigger('doubleTap');
-	        }
-	        else
-	            $elem.data('lastTouch', now);
-
-	        // if double tapping never happened, fire single tap
-	        tapTimer = setTimeout(function(){
-	        	$elem.trigger('tap');
-	        	clearTimeout(tapTimer);
-	        }, wait);
-	    }
+	//////////////////////
+	// special events 
+	
+	$.event.special.doubleTap = {
+	    setup    : setup,
+        teardown : teardown,
+        handler  : handler
 	};
+
+    $.event.special.tap = {
+        setup    : setup,
+        teardown : teardown,
+        handler  : handler
+    };
+	
+	//////////////////////
+	// events methods
+	
+	function setup(data, namespaces){
+	    var elm = $(this);
+		
+		if( elm.data('tap_event') == true )
+			return;
+		
+		elm.bind('touchend.tap', handler)
+		    .bind('touchmove.tap', function(){
+				moved = true;
+			}).data('tap_event', true);
+	}
+	
+	function teardown(namespaces) {
+        $(this).unbind('touchend.tap touchmove.tap');
+    }
+	
+	function handler(event){
+	console.log(event);
+		if( moved ){ // reset
+			moved = false;
+			return false;
+		}
+		
+		var elem 	  = event.target,
+			$elem 	  = $(elem),
+			lastTouch = $elem.data('lastTouch') || 0,
+			now 	  = event.timeStamp,
+			delta 	  = now - lastTouch;
+
+		// double-tap condition
+		if( delta > 20 && delta < threshold  ){
+			clearTimeout(tapTimer);
+			return $elem.data('lastTouch', 0).trigger('doubleTap');
+		}
+		else
+			$elem.data('lastTouch', now);
+
+
+		tapTimer = setTimeout(function(){
+			$elem.trigger('tap');
+		}, threshold);
+	}
 
 })(jQuery);
 
 
-/**
-* jQuery special event which adds basic "swipe" support for touch-enabled devices
-*
-* @author Yair Even Or
-* @version 1.0.0 (March 20, 2013)
-*/
-	
 (function($){
 	"use strict";
 
+	/**
+    * jQuery Plugin to add basic "swipe" support on touch-enabled devices
+    *
+    * @author Yair Even Or
+    * @version 1.0.0 (March 20, 2013)
+    */
     $.event.special.swipe = {
         setup: function(){
             $(this).bind('touchstart', $.event.special.swipe.handler);
