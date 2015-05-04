@@ -5,7 +5,7 @@
     MIT-style license.
 */
 
-(function($){
+;(function($){
 	"use strict";
 
 	var tapTimer,
@@ -13,8 +13,8 @@
 		threshold = 250;     // ms
 
 	//////////////////////
-	// special events 
-	
+	// special events
+
 	$.event.special.doubleTap = {
 	    setup    : setup,
         teardown : teardown,
@@ -26,33 +26,33 @@
         teardown : teardown,
         handler  : handler
     };
-	
+
 	//////////////////////
 	// events methods
-	
+
 	function setup(data, namespaces){
 	    var elm = $(this);
-		
+
 		if( elm.data('tap_event') == true )
 			return;
-		
+
 		elm.bind('touchend.tap', handler)
 		    .bind('touchmove.tap', function(){
 				moved = true;
 			}).data('tap_event', true);
 	}
-	
+
 	function teardown(namespaces) {
         $(this).unbind('touchend.tap touchmove.tap');
     }
-	
+
 	function handler(event){
 	console.log(event);
 		if( moved ){ // reset
 			moved = false;
 			return false;
 		}
-		
+
 		var elem 	  = event.target,
 			$elem 	  = $(elem),
 			lastTouch = $elem.data('lastTouch') || 0,
@@ -76,15 +76,15 @@
 })(jQuery);
 
 
+/**
+* jQuery Plugin to add basic "swipe" support on touch-enabled devices
+*
+* @author Yair Even Or
+* @version 1.0.0 (March 20, 2013)
+*/
 (function($){
 	"use strict";
 
-	/**
-    * jQuery Plugin to add basic "swipe" support on touch-enabled devices
-    *
-    * @author Yair Even Or
-    * @version 1.0.0 (March 20, 2013)
-    */
     $.event.special.swipe = {
         setup: function(){
             $(this).bind('touchstart', $.event.special.swipe.handler);
