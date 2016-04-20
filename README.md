@@ -1,4 +1,4 @@
-Touchy - jQuery special events (tap / double tap / swipe)
+Adds jQuery special events (tap / double tap / swipe)
 ========
 
 This will add support for these events:
