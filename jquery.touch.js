@@ -9,7 +9,7 @@
 
 	var tapTimer,
 		timeStart 	 = 0,	//Variable used to help to know if the user is holding his finger on the device. It keeps the timestamp of first touch.
-		threshold 	 = 250,     
+		threshold 	 = 250, // ms    
 		thresholdHolding = 550; // ms
 
 	//////////////////////
