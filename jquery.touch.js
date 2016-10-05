@@ -1,24 +1,23 @@
 /*!
     tap / double tap special event for jQuery
-    v 1.0.0
+    v 1.0.1
     (c) 2014 Yair Even Or <http://dropthebit.com>
     MIT-style license.
 */
-
 ;(function($){
 	"use strict";
 
 	var tapTimer,
-		moved     = false,   // flag to know if the finger had moved while touched the device
-		threshold = 250;     // ms
+		timeStart 	 = 0,	//Variable used to help to know if the user is holding his finger on the device. It keeps the timestamp of first touch.
+		threshold 	 = 250, // ms    
+		thresholdHolding = 550; // ms
 
 	//////////////////////
 	// special events
-
 	$.event.special.doubleTap = {
 	    setup    : setup,
-        teardown : teardown,
-        handler  : handler
+            teardown : teardown,
+            handler  : handler
 	};
 
     $.event.special.tap = {
@@ -26,10 +25,15 @@
         teardown : teardown,
         handler  : handler
     };
-
+    
+    $.event.special.tapHold = {
+    	setup : setup,
+    	teardown: teardown,
+    	handler: handler
+    }
+    
 	//////////////////////
 	// events methods
-
 	function setup(data, namespaces){
 	    var elm = $(this);
 
@@ -37,42 +41,46 @@
 			return;
 
 		elm.bind('touchend.tap', handler)
-		    .bind('touchmove.tap', function(){
-				moved = true;
+			.bind('touchstart.tap', handler)
+			//If the finger had moved while touched the device, it just will clean timeStart for a next touch.
+		    .bind('touchmove.tap', function(event){
+		    	timeStart = 0;
+		    	event.preventDefault();
 			}).data('tap_event', true);
 	}
 
 	function teardown(namespaces) {
-        $(this).unbind('touchend.tap touchmove.tap');
+        $(this).unbind('touchend.tap touchmove.tap touchstart.tap');
     }
 
 	function handler(event){
-	console.log(event);
-		if( moved ){ // reset
-			moved = false;
-			return false;
-		}
-
-		var elem 	  = event.target,
+		if(event.type === 'touchstart'){
+			timeStart = event.timeStamp;
+			event.preventDefault();
+		} else {
+			var elem 	  = event.target,
 			$elem 	  = $(elem),
 			lastTouch = $elem.data('lastTouch') || 0,
 			now 	  = event.timeStamp,
 			delta 	  = now - lastTouch;
 
-		// double-tap condition
-		if( delta > 20 && delta < threshold  ){
-			clearTimeout(tapTimer);
-			return $elem.data('lastTouch', 0).trigger('doubleTap');
+			// double-tap condition
+			if( delta > 20 && delta < threshold  ){
+				clearTimeout(tapTimer);
+				return $elem.data('lastTouch', 0).trigger('doubleTap');
+			// tap-hold condition
+			} else if(timeStart > 0 && (now - timeStart) > thresholdHolding){
+				timeStart = 0;
+				return $elem.data('lastTouch', 0).trigger('tapHold');
+			} else
+				$elem.data('lastTouch', now);
+	
+	
+			tapTimer = setTimeout(function(){
+				$elem.trigger('tap');
+			}, threshold);
 		}
-		else
-			$elem.data('lastTouch', now);
-
-
-		tapTimer = setTimeout(function(){
-			$elem.trigger('tap');
-		}, threshold);
 	}
-
 })(jQuery);
 
 

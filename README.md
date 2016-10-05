@@ -9,6 +9,7 @@ A test page is included.
 ## How to use:
     $(elm).on('tap', callbackFunction);
 	$(elm).on('doubleTap', callbackFunction);
+	$(elm).on('tapHold', callbackFunction);
 	// swipe
 	$(elm).on('swipe', function onSwipe(e, Dx, Dy){
 		// ...
